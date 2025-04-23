@@ -51,14 +51,14 @@ MIDIFunc.trace;
 	};
 
 	~rateSpec = ControlSpec(0.25,4, 'exp');
-		~panSpec = ControlSpec(-45,45, 'lin');
+	~panSpec = ControlSpec(-45,45, 'lin');
 
 
-		~audioBuss = CtkAudio.play(2, server: ~server);
+	~audioBuss = CtkAudio.play(2, server: ~server);
 
 
-			~buffer = ~buffers.choose;
-		~start = 0.0.rrand(10,0);
+	~buffer = ~buffers.choose;
+	~start = 0.0.rrand(10.0);
 
 	~note = ~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
 		starttime: ~start
@@ -66,8 +66,8 @@ MIDIFunc.trace;
 	)
 	.dur_(~buffer.duration)
 	.bufnum_(~buffer)
-		.outBus_(~audioBuss)
-	.loop(1)
+	.outBus_(~audioBuss)
+	.loop_(1)
 	.play;
 
 
@@ -75,19 +75,17 @@ MIDIFunc.trace;
 	~reverbNote = ~myPlayBufPNotes['reverb'].note(addAction: 'tail').in_(~audioBuss).play;
 
 
-~midiRate = MIDIFunc.cc({ |val, num, chan, src|
+	~midiRate = MIDIFunc.cc({ |val, num, chan, src|
 		~note.rate_(~rateSpec.map(val.linlin(0, 127, 0, 1)))
 	}, ccNum: 0);
 
-~midiFreq = MIDIFunc.cc({ |val, num, chan, src|
+	~midiFreq = MIDIFunc.cc({ |val, num, chan, src|
 		~note.panAngle_(~panSpec.map(val.linlin(0, 127, 0, 1)))
-	}, ccNum: 0);
+	}, ccNum: 1);
 
 
 
 });
-
-linlin
 
 )
 
@@ -99,9 +97,9 @@ linlin
 ///////////////// set RT/NRT environment variables ///////////////
 
 ~sampleRate = s.sampleRate.isNil.if({   // set sampleRate
-	"% sampleRate is %. Try booting rt server.".format(s, s.sampleRate).warn;
+"% sampleRate is %. Try booting rt server.".format(s, s.sampleRate).warn;
 }, {
-	s.sampleRate.asInteger
+s.sampleRate.asInteger
 });
 ~serverOptions = ServerOptions.new;
 ~serverOptions.numOutputBusChannels = 2;  // stereo --> 2 channels
@@ -109,12 +107,12 @@ linlin
 ~sampleFormat = "int24";                  // soundfile sample format
 
 ~outputFilePath = PathName.new(
-	"%/%/_%.%".format(
-		Document.current.dir,
-		"sounds",
-		PathName.new(Document.current.dir).fileName,
-		~headerFormat.toLower
-	)
+"%/%/_%.%".format(
+Document.current.dir,
+"sounds",
+PathName.new(Document.current.dir).fileName,
+~headerFormat.toLower
+)
 );
 
 
@@ -143,19 +141,19 @@ NOTE: we could write functions to do this!
 buffers are collected into a dictionary, where the key is the soundfile name
 */
 ~mySFBufferDict = Dictionary.newFrom(
-	~mySoundFiles.collect({ |item|
-		var itemPath = item.path;
-		[
-			PathName.new(itemPath).fileNameWithoutExtension.replace(".", "_").asSymbol,
-			CtkBuffer.playbuf(itemPath)
-		]
-	}).flatten
+~mySoundFiles.collect({ |item|
+var itemPath = item.path;
+[
+PathName.new(itemPath).fileNameWithoutExtension.replace(".", "_").asSymbol,
+CtkBuffer.playbuf(itemPath)
+]
+}).flatten
 );
 
 
 // 2) add buffers to score
 ~mySFBufferDict.do({ |item|
-	~mainScore.add(item)
+~mainScore.add(item)
 });
 
 
@@ -175,12 +173,12 @@ play complete soundfile, forward...
 */
 ~start = 0.0;
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
-	.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
+.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -194,14 +192,14 @@ play complete soundfile, backward...
 */
 ~start = 4.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
-	.rate_(-1)  // <-- play backward
-	.loop_(1)  // <-- need to set the loop arg to 1 (True)
-	.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
+.rate_(-1)  // <-- play backward
+.loop_(1)  // <-- need to set the loop arg to 1 (True)
+.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -212,13 +210,13 @@ loop soundfile 4x, forward...
 */
 ~start = 8.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: 4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
-	)
-	.dur_(4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
-	.loop_(1)  // <-- need to set the loop arg to 1 (True)
-	.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: 4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
+)
+.dur_(4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
+.loop_(1)  // <-- need to set the loop arg to 1 (True)
+.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
 );
 
 /*
@@ -228,14 +226,14 @@ loop soundfile 4x, backward...
 */
 ~start = 13.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: 4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
-	)
-	.dur_(4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
-	.rate_(-1)  // <-- play backward
-	.loop_(1)  // <-- need to set the loop arg to 1 (True)
-	.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: 4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
+)
+.dur_(4.0 * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
+.rate_(-1)  // <-- play backward
+.loop_(1)  // <-- need to set the loop arg to 1 (True)
+.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -257,13 +255,13 @@ NOTE: we could write a function for the job!!
 
 ~start = 18.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 2
-	)
-	.dur_(~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 2
-	.rate_(~rate)  // <-- multiply rate by 0.5
-	.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 2
+)
+.dur_(~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 2
+.rate_(~rate)  // <-- multiply rate by 0.5
+.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -285,13 +283,13 @@ NOTE: we could write a function for the job!!
 
 ~start = 21.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
-	)
-	.dur_(~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
-	.rate_(~rate)  // <-- multiply rate by 0.25
-	.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration  // <-- multiply duration by 4
+)
+.dur_(~durFactor * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)  // <-- multiply duration by 4
+.rate_(~rate)  // <-- multiply rate by 0.25
+.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -315,15 +313,15 @@ NOTE: we could write a function for the job!!
 ~numNoteEvents = ~octTransposition.size;  // number of note events to create
 
 ~numNoteEvents.do({ |noteEventNum|
-	~mainScore.add(
-		~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-			starttime: ~start,
-			duration: ~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration
-		)
-		.dur_(~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)
-		.rate_(~rate[noteEventNum])
-		.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
-	)
+~mainScore.add(
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration
+)
+.dur_(~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].duration)
+.rate_(~rate[noteEventNum])
+.bufnum_(~mySFBufferDict[\Vibraphone_dampen_ff_Ab3_stereo].bufnum)
+)
 });
 
 
@@ -336,26 +334,26 @@ play \Vibraphone_shortsustain_ff_Ab3_stereo backward
 */
 ~start = 30.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].duration)
-	.bufnum_(~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].duration)
+.bufnum_(~mySFBufferDict[\Vibraphone_sustain_ff_Ab3_stereo].bufnum)
 );
 
 ~start = 34.0;  // reuse start
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
-	.gain_(-9.0)  // ... better mixing...
-	.riseTime_(1.5)  // ... better mixing...
-	.rate_(-1)  // <-- play backward
-	.loop_(1)  // <-- need to set the loop arg to 1 (True)
-	.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].duration)
+.gain_(-9.0)  // ... better mixing...
+.riseTime_(1.5)  // ... better mixing...
+.rate_(-1)  // <-- play backward
+.loop_(1)  // <-- need to set the loop arg to 1 (True)
+.bufnum_(~mySFBufferDict[\Vibraphone_shortsustain_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -370,24 +368,24 @@ NOTE: we're cutting off \Vibraphone_bow_Ab3_stereo
 ~start = 38.0;  // reuse start
 ~bowDur = 9.5;  // should be 11.608548752834, i.e., ~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].duration
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~bowDur
-	)
-	.dur_(~bowDur)
-	.rate_(-1)  // <-- play backward
-	.loop_(1)  // <-- need to set the loop arg to 1 (True)
-	.bufnum_(~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~bowDur
+)
+.dur_(~bowDur)
+.rate_(-1)  // <-- play backward
+.loop_(1)  // <-- need to set the loop arg to 1 (True)
+.bufnum_(~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].bufnum)
 );
 
 ~start = ~start + ~bowDur - 0.1;  // reuse start, overlap previous note event by 0.1 seconds
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration)
-	.bufnum_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration)
+.bufnum_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -399,12 +397,12 @@ play \Marimba_deadstroke_ff_Ab3_stereo, and mix of \Vibraphone_bow_Ab3_stereo, t
 */
 ~start = 49.0;  // reuse start, overlap previous note event by 0.1 seconds
 ~mainScore.add(
-	~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-		starttime: ~start,
-		duration: ~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration
-	)
-	.dur_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration)
-	.bufnum_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].bufnum)
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration
+)
+.dur_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].duration)
+.bufnum_(~mySFBufferDict[\Marimba_deadstroke_ff_Ab3_stereo].bufnum)
 );
 
 
@@ -418,16 +416,16 @@ NOTE:
 ~durFactor = ~rate.reciprocal;  // ... as is durFactor
 
 ~numTransRatios.do({ |noteEventNum|
-	~mainScore.add(
-		~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
-			starttime: ~start,
-			duration: ~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].duration
-		)
-		.dur_(~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].duration)
-		.gain_(-6.0)  // ... better mixing...
-		.rate_(~rate[noteEventNum])
-		.bufnum_(~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].bufnum)
-	)
+~mainScore.add(
+~myPlayBufPNotes[\dxarts46x_stereoPlayBuf].note(
+starttime: ~start,
+duration: ~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].duration
+)
+.dur_(~durFactor[noteEventNum] * ~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].duration)
+.gain_(-6.0)  // ... better mixing...
+.rate_(~rate[noteEventNum])
+.bufnum_(~mySFBufferDict[\Vibraphone_bow_Ab3_stereo].bufnum)
+)
 });
 
 
@@ -436,14 +434,14 @@ NOTE:
 
 // write score to sound file with the -write message, and then open with helper score function, \scoreWriteOpenSFPlayer
 (
-	~mainScore.write(
-		path: ~outputFilePath.fullPath,
-		sampleRate: ~sampleRate,
-		headerFormat: ~headerFormat,
-		sampleFormat: ~sampleFormat,
-		options: ~serverOptions,
-		action: ~myScoreFuncs[\scoreWriteOpenSFPlayer].value(~mainScore, ~outputFilePath)
-	)
+~mainScore.write(
+path: ~outputFilePath.fullPath,
+sampleRate: ~sampleRate,
+headerFormat: ~headerFormat,
+sampleFormat: ~sampleFormat,
+options: ~serverOptions,
+action: ~myScoreFuncs[\scoreWriteOpenSFPlayer].value(~mainScore, ~outputFilePath)
+)
 );
 
 /*
